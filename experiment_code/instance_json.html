@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Problem Solving</title>
+	<link href="js/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+	<script src="js/jquery.min.js"></script>
+
+</head>
+<body>
+	<!-- All of our HTML code goes here... -->
+
+
+	<div id="counter">
+
+	</div>
+	<div id='world'>
+
+	</div>
+
+	<br>
+
+	<br>
+<div id = 'continue'>
+	</div>
+<div id = 'cb'>
+
+</div>
+	<!-- End of HTML-->
+</body>
+
+
+<script>
+
+	// All of our JavaScript code goes here...
+
+
+
+	var ct = document.getElementById('counter');
+	var el = document.getElementById('world');
+	var bt = document.getElementById('continue');
+	var cb = document.getElementById('cb');
+
+	var steps = 0;
+	var dx = 0;
+	var dy = 0;
+	var reset = 0;
+	var pre = false;
+	var give_up = false;
+	var pacman = {x:-1,y:-1};
+
+	var url = 'instances/instance_' + id + '.json'; //wait to be replaced by info on url
+	var set_up_flag = 'setupflag'; // wait to be replaced by info on url
+
+	// Populate dropdown with list of provinces
+	$.getJSON(url, function (entry) {
+		optimal_cost = entry.optimal_cost;
+		map = entry.map;
+		// origin_map = structuredClone(map);
+		// pacman = entry.pacman;
+		origin_pacman = structuredClone(pacman);
+		num_goals = entry.num_goals;
+		origin_goals = entry.num_goals;
+		d = new Date();
+		start_time = d.getTime();
+		start_map = [];
+		if (set_up_flag[0] === '1') {
+			for (let i = 0; i < map[0].length; i++) {
+				let row = [];
+				for (let j = 0; j < map.length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = map[0].length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = map.length - 1 - j;
+					}
+					else{
+						r_j = j;
+					}
+					row.push(map[r_j][r_i]);
+				}
+				start_map.push(row);
+			}
+		}
+		else {
+			for (let i = 0; i < map.length; i++) {
+				let row = [];
+				for (let j = 0; j < map[0].length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = map.length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = map[0].length - 1 - j;
+					}
+					else {
+						r_j = j;
+					}
+					row.push(map[r_i][r_j]);
+				}
+				start_map.push(row);
+			}
+		}
+
+		map = structuredClone(start_map);
+		drawWorld();
+	});
+
+
+
+
+
+
+
+	function updateCounter(){
+		ct.innerHTML = '<p> Current path: ' + steps + ' steps. </p>';
+	}
+
+	function check_function(){
+		return (num_goals === 0);
+	}
+
+	function drawWorld(){
+		if (pre === false) {
+			el.innerHTML = 'Press <u>space</u> to continue when you are ready...';
+			bt.innerHTML = '';
+			cb.innerHTML = '';
+			ct.innerHTML = '';
+			return;
+		}
+		el.innerHTML = '';
+		bt.innerHTML = '';
+
+		for(let y = 0; y < map.length ; y = y + 1) {
+			for(let x = 0; x < map[0].length ; x = x + 1) {
+
+
+				if (map[y][x] === 1) {
+					el.innerHTML += "<div class='cargo'></div>";
+				}
+				else if (map[y][x] === 2) {
+					el.innerHTML += "<div class='cargo_on_target'></div>";
+				}
+				else if (map[y][x] === 3) {
+					el.innerHTML += "<div class='empty'></div>";
+				}
+				else if (map[y][x] === 4) {
+					el.innerHTML += "<div class='floor'></div>";
+				}
+				else if (map[y][x] === 5) {
+					el.innerHTML += "<div class='keeper'></div>";
+					if (pacman.x === -1) {
+						pacman.x = x;
+						pacman.y = y;
+					}
+				}
+				else if (map[y][x] === 6) {
+					el.innerHTML += "<div class='keeper_on_target'></div>";
+					if (pacman.x === -1) {
+						pacman.x = x;
+						pacman.y = y;
+					}
+				}
+				else if (map[y][x] === 7) {
+					el.innerHTML += "<div class='target'></div>";
+				}
+				else if (map[y][x] === 8) {
+					el.innerHTML += "<div class='wall'></div>";
+				}
+				else if (map[y][x] === 11) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:50px; height:50px;''>A</span></div>";
+				}
+				else if (map[y][x] === 12) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:50px; height:50px;''>B</span></div>";
+				}
+				else if (map[y][x] === 13) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:50px; height:50px;''>C</span></div>";
+				}
+				else if (map[y][x] === 14) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:50px; height:50px;''>D</span></div>";
+				}
+				else if (map[y][x] === 15) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:50px; height:50px;''>E</span></div>";
+				}
+			}
+			el.innerHTML += "<br>";
+		}
+		if (give_up === true) {
+
+			bt.innerHTML += "<br>You claim that this trial is unsolvable! Press the button to continue...<br><br>";
+			cb.innerHTML = "<button type='button'>Continue</button>";
+		}
+		else if (num_goals === 0) {
+			bt.innerHTML += "<br>Task complete! Press the button to continue...<br><br>";
+			cb.innerHTML = "<button type='button'>Continue</button>";
+		}
+		else{
+			bt.innerHTML += "<br>If you get stuck you can press <u>R</u> to reset the display and incur a 10 second penalty...<br>If you think that this trial is unsolvable, you can press <u>N</u> to progress...<br>";
+			cb.innerHTML = "";
+		}
+		updateCounter();
+	}
+
+
+
+	document.onkeyup = function(event){
+		if (num_goals>0){
+			/* reset the problem */
+			if (event.code === 'KeyR') {
+
+				if (pre === true){
+					map = structuredClone(start_map);
+					pacman = {x:-1,y:-1};
+					pre = false;
+					// pacman = structuredClone(origin_pacman);
+					steps = 0;
+					num_goals = origin_goals;
+					reset += 1;
+
+					el.innerHTML = '';
+					ct.innerHTML = 'Resetting...(with 10 seconds penalty)'
+					bt.innerHTML = '<br><br>';
+					setTimeout(function() {drawWorld();},10000);
+					return;
+				}
+				else{
+					return;
+				}
+
+			}
+
+			if (event.code === 'KeyN') {
+				/* give up the problem */
+				if (pre === true){
+					give_up = true;
+					num_goals = 0;
+					drawWorld();
+					return;
+				}
+				else{
+					return;
+				}
+
+			}
+
+			if (event.code === 'Space') {
+				/* start the problem if not started yet*/
+				if (pre === false){
+					pre = true;
+					drawWorld();
+					return;
+				}
+				else{
+					return;
+				}
+
+			}
+
+			if (event.code === 'ArrowLeft'){ // PACMAN MOVE LEFT
+				dx = -1;
+				dy = 0;
+
+			}
+			else if (event.code === 'ArrowUp'){ // PACMAN MOVE UP
+				dx = 0;
+				dy = -1;
+			}
+			else if (event.code === 'ArrowRight'){ // PACMAN MOVE RIGHT
+				dx = 1;
+				dy = 0;
+			}
+			else if (event.code === 'ArrowDown'){ // PACMAN MOVE DOWN
+				dx = 0;
+				dy = 1;
+			}
+
+			let from = map[pacman.y][pacman.x];
+			let to = map[pacman.y+dy][pacman.x+dx];
+			let target = map[pacman.y+dy+dy][pacman.x+dx+dx];
+			let succ = false;
+
+			if (to === 4) {
+				succ = true;
+				map[pacman.y+dy][pacman.x+dx] = 5;
+			}
+			else if (to === 7) {
+				succ = true;
+				map[pacman.y+dy][pacman.x+dx] = 6;
+			}
+			else if (to === 1) {
+				if (target === 4) {
+					succ = true;
+					map[pacman.y+dy+dy][pacman.x+dx+dx] = 1;
+					map[pacman.y+dy][pacman.x+dx] = 5;
+				}
+				else if (target === 7) {
+					succ = true;
+					num_goals -= 1;
+					map[pacman.y+dy+dy][pacman.x+dx+dx] = 2;
+					map[pacman.y+dy][pacman.x+dx] = 5;
+				}
+			}
+			else if (to === 2) {
+				if (target === 4) {
+					succ = true;
+					num_goals += 1;
+					map[pacman.y+dy+dy][pacman.x+dx+dx] = 1;
+					map[pacman.y+dy][pacman.x+dx] = 6;
+				}
+				else if (target === 7) {
+					succ = true;
+					map[pacman.y+dy+dy][pacman.x+dx+dx] = 2;
+					map[pacman.y+dy][pacman.x+dx] = 6;
+				}
+			}
+
+			// update start location and steps
+			if (succ === true) {
+				if (from === 5) {
+					map[pacman.y][pacman.x] = 4;
+				}
+				else if (from === 6) {
+					map[pacman.y][pacman.x] = 7;
+				}
+				steps += 1;
+				drawWorld();
+				pacman.x += dx;
+				pacman.y += dy;
+			}
+		}
+	}
+
+
+
+
+
+
+
+	// End of JavaScript
+</script>
+</html>

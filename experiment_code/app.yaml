@@ -1,0 +1,48 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /img
+  static_dir: img
+
+- url: /instance_json.html
+  static_files: instance_json.html
+  upload: instance_json.html
+
+- url: /instance_json_rotation.html
+  static_files: instance_json_rotation.html
+  upload: instance_json_rotation.html
+
+- url: /instance_gr_json.html
+  static_files: instance_gr_json.html
+  upload: instance_gr_json.html
+
+- url: /instance_gr_json_r.html
+  static_files: instance_gr_json_r.html
+  upload: instance_gr_json_r.html
+
+- url: /data.json
+  static_files: data.json
+  upload: data.json
+
+- url: /js
+  static_dir: js
+
+- url: /instances
+  static_dir: instances
+
+- url: /wtf
+  static_dir: wtf
+
+- url: /.*
+  script: backend.application
+
+libraries:
+- name: webapp2
+  version: latest
+- name: jinja2
+  version: latest
+
+builtins:
+  - remote_api: on

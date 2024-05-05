@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Goal Recognition</title>
+	<link href="js/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+	<script src="js/jquery.min.js"></script>
+
+</head>
+<body>
+	<!-- All of our HTML code goes here... -->
+
+	<div id = "info">
+	</div>
+
+	<div id="counter">
+
+	</div>
+	<div id='world'>
+
+	</div>
+
+	<br>
+	<br>
+	<center>
+	<div id="myProgress">
+  <div id="myBar"></div>
+	</div>
+</center>
+
+	<br>
+
+	<br>
+<div id = 'continue'>
+	</div>
+	<div id = 'cb'>
+
+</div>
+	<!-- End of HTML-->
+</body>
+
+
+<script>
+
+	// All of our JavaScript code goes here...
+
+
+
+
+	var info = document.getElementById('info');
+	var ct = document.getElementById('counter');
+	var el = document.getElementById('world');
+	var bt = document.getElementById('continue');
+	var cb = document.getElementById('cb');
+
+	var steps = 0;
+	var dx = 0;
+	var dy = 0;
+	var response = false;
+	var can_response = false;
+	var j = 0;
+
+	var url = 'instances/gr_instance_' + id + '.json';
+	var set_up_flag = 'setupflag';
+	// Populate dropdown with list of provinces
+
+
+
+	$.getJSON(url, function (entry) {
+		real_goal = entry.real_goal;
+		actions = entry.actions;
+		o_map = entry.map;
+		optimal_cost = entry.optimal_cost;
+		origin_map = structuredClone(o_map);
+		pacman = entry.pacman;
+		origin_pacman = structuredClone(pacman);
+		drawWorld();
+
+
+	});
+
+
+	function check_function() {
+		return response;
+	}
+
+	function updateCounter(){
+		ct.innerHTML = '<p> Current path: ' + steps + ' steps. </p>';
+	}
+
+	info.innerHTML = '<p> Press <u>space</u> to play (or replay) the video. Press <u>A</u> or <u>B</u> to indicate where you think the target was located. </p><br>';
+	info.innerHTML += '<p style="color:black;font-weight:bold;font-family:Calibri;font-size:40">Target Inference</p>';
+	/* GR problem */
+	function drawWorld(){
+		el.innerHTML = '';
+		bt.innerHTML = '';
+
+		map = [];
+		if (set_up_flag[0] === '1') {
+			for (let i = 0; i < o_map[0].length; i++) {
+				let row = [];
+				for (let j = 0; j < o_map.length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = o_map[0].length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = o_map.length - 1 - j;
+					}
+					else{
+						r_j = j;
+					}
+					row.push(o_map[r_j][r_i]);
+				}
+				map.push(row);
+			}
+		}
+		else {
+			for (let i = 0; i < o_map.length; i++) {
+				let row = [];
+				for (let j = 0; j < o_map[0].length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = o_map.length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = o_map[0].length - 1 - j;
+					}
+					else {
+						r_j = j;
+					}
+					row.push(o_map[r_i][r_j]);
+				}
+				map.push(row);
+			}
+		}
+		if (j>0) {
+			for(var y = 0; y < map.length ; y = y + 1) {
+				for(var x = 0; x < map[y].length ; x = x + 1) {
+					if (map[y][x] === 1) {
+						el.innerHTML += "<div class='cargo'></div>";
+					}
+					else if (map[y][x] === 2) {
+						el.innerHTML += "<div class='cargo_on_target'></div>";
+					}
+					else if (map[y][x] === 3) {
+						el.innerHTML += "<div class='empty'></div>";
+					}
+					else if (map[y][x] === 4) {
+						el.innerHTML += "<div class='floor'></div>";
+					}
+					else if (map[y][x] === 5) {
+						el.innerHTML += "<div class='keeper'></div>";
+					}
+					else if (map[y][x] === 6) {
+						el.innerHTML += "<div class='keeper_on_target'></div>";
+					}
+					else if (map[y][x] === 7) {
+						el.innerHTML += "<div class='target'></div>";
+					}
+					else if (map[y][x] === 8) {
+						el.innerHTML += "<div class='wall'></div>";
+					}
+					else if (map[y][x] === 11) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>B</span></div>";
+					}
+					else if (map[y][x] === 12) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>A</span></div>";
+					}
+					else if (map[y][x] === 13) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>C</span></div>";
+					}
+					else if (map[y][x] === 14) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>D</span></div>";
+					}
+					else if (map[y][x] === 15) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>E</span></div>";
+					}
+				}
+				el.innerHTML += "<br>";
+
+			}
+
+		}
+		else {
+			for(var y = 0; y < map.length ; y = y + 1) {
+				for(var x = 0; x < map[y].length ; x = x + 1) {
+					if (map[y][x] === 1) {
+						el.innerHTML += "<div class='cargo_finish'></div>";
+					}
+					else if (map[y][x] === 2) {
+						el.innerHTML += "<div class='cargo_on_target_finish'></div>";
+					}
+					else if (map[y][x] === 3) {
+						el.innerHTML += "<div class='empty_finish'></div>";
+					}
+					else if (map[y][x] === 4) {
+						el.innerHTML += "<div class='floor_finish'></div>";
+					}
+					else if (map[y][x] === 5) {
+						el.innerHTML += "<div class='keeper_finish'></div>";
+					}
+					else if (map[y][x] === 6) {
+						el.innerHTML += "<div class='keeper_on_target_finish'></div>";
+					}
+					else if (map[y][x] === 7) {
+						el.innerHTML += "<div class='target_finish'></div>";
+					}
+					else if (map[y][x] === 8) {
+						el.innerHTML += "<div class='wall_finish'></div>";
+					}
+					else if (map[y][x] === 11) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>B</span></div>";
+					}
+					else if (map[y][x] === 12) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>A</span></div>";
+					}
+					else if (map[y][x] === 13) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>C</span></div>";
+					}
+					else if (map[y][x] === 14) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>D</span></div>";
+					}
+					else if (map[y][x] === 15) {
+						el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>E</span></div>";
+					}
+				}
+				el.innerHTML += "<br>";
+
+			}
+
+		}
+
+
+		bt.innerHTML += "<br><br><br>";
+		cb.innerHTML = "";
+		updateCounter();
+		response = false;
+	}
+
+	/* participant choose B */
+	function drawWorldB(){
+		el.innerHTML = '';
+		bt.innerHTML = '';
+
+		map = [];
+		if (set_up_flag[0] === '1') {
+			for (let i = 0; i < o_map[0].length; i++) {
+				let row = [];
+				for (let j = 0; j < o_map.length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = o_map[0].length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = o_map.length - 1 - j;
+					}
+					else{
+						r_j = j;
+					}
+					row.push(o_map[r_j][r_i]);
+				}
+				map.push(row);
+			}
+		}
+		else {
+			for (let i = 0; i < o_map.length; i++) {
+				let row = [];
+				for (let j = 0; j < o_map[0].length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = o_map.length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = o_map[0].length - 1 - j;
+					}
+					else {
+						r_j = j;
+					}
+					row.push(o_map[r_i][r_j]);
+				}
+				map.push(row);
+			}
+		}
+		for(var y = 0; y < map.length ; y = y + 1) {
+			for(var x = 0; x < map[y].length ; x = x + 1) {
+				if (map[y][x] === 1) {
+					el.innerHTML += "<div class='cargo_finish'></div>";
+				}
+				else if (map[y][x] === 2) {
+					el.innerHTML += "<div class='cargo_on_target_finish'></div>";
+				}
+				else if (map[y][x] === 3) {
+					el.innerHTML += "<div class='empty_finish'></div>";
+				}
+				else if (map[y][x] === 4) {
+					el.innerHTML += "<div class='floor_finish'></div>";
+				}
+				else if (map[y][x] === 5) {
+					el.innerHTML += "<div class='keeper_finish'></div>";
+				}
+				else if (map[y][x] === 6) {
+					el.innerHTML += "<div class='keeper_on_target_finish'></div>";
+				}
+				else if (map[y][x] === 7) {
+					el.innerHTML += "<div class='target_finish'></div>";
+				}
+				else if (map[y][x] === 8) {
+					el.innerHTML += "<div class='wall_finish'></div>";
+				}
+				else if (map[y][x] === 11) {
+					el.innerHTML += "<div class='highlightnum'><span style='display:block; width:32px; height:32px;''>B</span></div>";
+				}
+				else if (map[y][x] === 12) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>A</span></div>";
+				}
+				else if (map[y][x] === 13) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>C</span></div>";
+				}
+				else if (map[y][x] === 14) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>D</span></div>";
+				}
+				else if (map[y][x] === 15) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>E</span></div>";
+				}
+			}
+			el.innerHTML += "<br>";
+		}
+
+		bt.innerHTML += "<br>Press the button to continue...<br>";
+		cb.innerHTML = "<button type='button'>Continue</button>";
+
+		updateCounter();
+		response = true;
+	}
+
+	/* participant choose A */
+	function drawWorldA(){
+		el.innerHTML = '';
+		bt.innerHTML = '';
+
+		map = [];
+		if (set_up_flag[0] === '1') {
+			for (let i = 0; i < o_map[0].length; i++) {
+				let row = [];
+				for (let j = 0; j < o_map.length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = o_map[0].length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = o_map.length - 1 - j;
+					}
+					else{
+						r_j = j;
+					}
+					row.push(o_map[r_j][r_i]);
+				}
+				map.push(row);
+			}
+		}
+		else {
+			for (let i = 0; i < o_map.length; i++) {
+				let row = [];
+				for (let j = 0; j < o_map[0].length; j++) {
+					if (set_up_flag[1] === '1') {
+						r_i = o_map.length - 1 - i;
+					}
+					else {
+						r_i = i;
+					}
+					if (set_up_flag[2] === '1') {
+						r_j = o_map[0].length - 1 - j;
+					}
+					else {
+						r_j = j;
+					}
+					row.push(o_map[r_i][r_j]);
+				}
+				map.push(row);
+			}
+		}
+		for(var y = 0; y < map.length ; y = y + 1) {
+			for(var x = 0; x < map[y].length ; x = x + 1) {
+				if (map[y][x] === 1) {
+					el.innerHTML += "<div class='cargo_finish'></div>";
+				}
+				else if (map[y][x] === 2) {
+					el.innerHTML += "<div class='cargo_on_target_finish'></div>";
+				}
+				else if (map[y][x] === 3) {
+					el.innerHTML += "<div class='empty_finish'></div>";
+				}
+				else if (map[y][x] === 4) {
+					el.innerHTML += "<div class='floor_finish'></div>";
+				}
+				else if (map[y][x] === 5) {
+					el.innerHTML += "<div class='keeper_finish'></div>";
+				}
+				else if (map[y][x] === 6) {
+					el.innerHTML += "<div class='keeper_on_target_finish'></div>";
+				}
+				else if (map[y][x] === 7) {
+					el.innerHTML += "<div class='target_finish'></div>";
+				}
+				else if (map[y][x] === 8) {
+					el.innerHTML += "<div class='wall_finish'></div>";
+				}
+				else if (map[y][x] === 11) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>B</span></div>";
+				}
+				else if (map[y][x] === 12) {
+					el.innerHTML += "<div class='highlightnum'><span style='display:block; width:32px; height:32px;''>A</span></div>";
+				}
+				else if (map[y][x] === 13) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>C</span></div>";
+				}
+				else if (map[y][x] === 14) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>D</span></div>";
+				}
+				else if (map[y][x] === 15) {
+					el.innerHTML += "<div class='num'><span style='display:block; width:32px; height:32px;''>E</span></div>";
+				}
+			}
+			el.innerHTML += "<br>";
+		}
+
+
+		bt.innerHTML += "<br>Press the button to continue...<br>";
+		cb.innerHTML = "<button type='button'>Continue</button>";
+
+		updateCounter();
+		response = true;
+	}
+
+/* actor move */
+function move(dx, dy){
+	if (dx === 0 && dy === 0) {
+		drawWorld();
+		return;
+	}
+
+	let from = o_map[pacman.y][pacman.x];
+	let to = o_map[pacman.y+dy][pacman.x+dx];
+	let target = o_map[pacman.y+dy+dy][pacman.x+dx+dx];
+	let succ = false;
+
+	if ( to === 4) {
+		succ = true;
+		o_map[pacman.y+dy][pacman.x+dx] = 5;
+	}
+	else if (to === 7) {
+		succ = true;
+		o_map[pacman.y+dy][pacman.x+dx] = 6;
+	}
+	else if (to === 1) {
+		if (target === 4) {
+			succ = true;
+			o_map[pacman.y+dy+dy][pacman.x+dx+dx] = 1;
+			o_map[pacman.y+dy][pacman.x+dx] = 5;
+		}
+		else if (target === 7) {
+			succ = true;
+			num_goals -= 1;
+			o_map[pacman.y+dy+dy][pacman.x+dx+dx] = 2;
+			o_map[pacman.y+dy][pacman.x+dx] = 5;
+		}
+	}
+	else if (to === 2) {
+		if (target === 4) {
+			succ = true;
+			num_goals += 1;
+			o_map[pacman.y+dy+dy][pacman.x+dx+dx] = 1;
+			o_map[pacman.y+dy][pacman.x+dx] = 6;
+		}
+		else if (target === 7) {
+			succ = true;
+			o_map[pacman.y+dy+dy][pacman.x+dx+dx] = 2;
+			o_map[pacman.y+dy][pacman.x+dx] = 6;
+		}
+	}
+
+	// update start location and steps
+	if (succ === true) {
+		if (from === 5) {
+			o_map[pacman.y][pacman.x] = 4;
+		}
+		else if (from === 6) {
+			o_map[pacman.y][pacman.x] = 7;
+		}
+		steps += 1;
+		drawWorld();
+		pacman.x += dx;
+		pacman.y += dy;
+	}
+}
+
+
+/* progress bar */
+
+function progress(time) {
+	if (j == 0) {
+		j = 1;
+		can_response = false;
+		info.innerHTML = '<p> Press <u>space</u> to play (or replay) the video. Press <u>A</u> or <u>B</u> to indicate where you think the target was located. </p><br>';
+		info.innerHTML += '<p class="blink_me" style="color:red;font-weight:bold;font-family:Calibri;font-size:40">Recap is playing...</p>';
+		var elem = document.getElementById("myBar");
+		var width = 1;
+		var id = setInterval(frame, time/40);
+		function frame() {
+			if (width > 40) {
+				clearInterval(id);
+				can_response = true;
+				info.innerHTML = '<p> Press <u>space</u> to play (or replay) the video. Press <u>A</u> or <u>B</u> to indicate where you think the target was located. </p><br>';
+				info.innerHTML += '<p style="color:black;font-weight:bold;font-family:Calibri;font-size:40">Target Inference</p>';
+				j = 0;
+				drawWorld();
+			} else {
+				width++;
+				elem.style.width = width * 2.5 + "%";
+				drawWorld();
+			}
+		}
+	}
+}
+
+/* respond to the keyboard input */
+	document.onkeyup = function(event){
+			if (event.code === 'Space') {
+				/* reset the problem */
+				o_map = structuredClone(origin_map);
+				pacman = structuredClone(origin_pacman);
+				steps = 0;
+				num_goals = origin_goals;
+				can_response = false;
+
+				drawWorld();
+
+
+
+				let sum_time = 0;
+				for (var i=0; i<actions.length;i=i+1){
+					sum_time = sum_time + actions[i][2];
+					setTimeout(move, sum_time*1000, actions[i][0], actions[i][1]);
+				}
+				progress(sum_time*1000);
+			}
+		if ((event.code === 'KeyA') && can_response) {
+				drawWorldA();
+				return;
+			}
+			if ((event.code === 'KeyB') && can_response) {
+					drawWorldB();
+					return;
+				}
+
+		}
+
+
+
+
+
+
+
+	// End of JavaScript
+</script>
+</html>

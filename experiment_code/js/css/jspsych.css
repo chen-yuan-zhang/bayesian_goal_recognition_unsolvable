@@ -1,0 +1,376 @@
+/*
+ * CSS for jsPsych experiments.
+ *
+ * This stylesheet provides minimal styling to make jsPsych
+ * experiments look polished without any additional styles.
+ */
+
+ /* Container holding jsPsych content */
+
+ @import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700);
+
+ .jspsych-display-element {
+   display: flex;
+   flex-direction: column;
+   overflow-y: auto;
+ }
+
+ .jspsych-display-element:focus {
+   outline: none;
+ }
+
+ .jspsych-content-wrapper {
+   display: flex;
+   margin: auto;
+   flex: 1 1 100%;
+   width: 100%;
+ }
+
+ .jspsych-content {
+   max-width: 95%; /* this is mainly an IE 10-11 fix */
+   text-align: center;
+   margin: auto; /* this is for overflowing content */
+ }
+
+ .jspsych-top {
+   align-items: flex-start;
+ }
+
+ .jspsych-middle {
+   align-items: center;
+ }
+
+/* fonts and type */
+
+.jspsych-display-element {
+  font-family: 'Open Sans', 'Arial', sans-serif;
+  font-size: 18px;
+  line-height: 1.6em;
+}
+
+/* Form elements like input fields and buttons */
+
+.jspsych-display-element input[type="text"] {
+  font-family: 'Open Sans', 'Arial', sans-serif;
+  font-size: 14px;
+}
+
+/* borrowing Bootstrap style for btn elements, but combining styles a bit */
+.jspsych-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 0px;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Open Sans', 'Arial', sans-serif;
+  cursor: pointer;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.jspsych-btn:hover {
+  background-color: #ddd;
+  border-color: #aaa;
+}
+
+.jspsych-btn:disabled {
+  background-color: #eee;
+  color: #aaa;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+
+.cargo_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/cargo.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+.cargo_on_target_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/cargo_on_target.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+.empty_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/empty.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+.floor_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/floor.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+.keeper_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/keeper.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+.keeper_on_target_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/keeper_on_target.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+.target_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/target.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+.wall_finish {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/wall.png');
+  display: inline-block;
+  filter: sepia(100%);
+  background-color: #ffcc00;
+}
+
+
+.cargo {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/cargo.png');
+  display: inline-block;
+}
+
+.cargo_on_target {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/cargo_on_target.png');
+  display: inline-block;
+}
+
+.empty {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/empty.png');
+  display: inline-block;
+}
+
+.floor {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/floor.png');
+  display: inline-block;
+}
+
+.keeper {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/keeper.png');
+  display: inline-block;
+}
+
+.keeper_on_target {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/keeper_on_target.png');
+  display: inline-block;
+}
+
+.target {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/target.png');
+  display: inline-block;
+}
+
+.wall {
+  width: 32px;
+  height: 32px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/wall.png');
+  display: inline-block;
+}
+
+.num {
+  width: 32px;
+  height: 32px;
+  color: red;
+  font-size: 100%;
+  text-align: center;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/floor.png');
+  display: inline-block;
+}
+
+.highlightnum {
+  width: 32px;
+  height: 32px;
+  color: blue;
+  font-size: 150%;
+  text-align: center;
+  border-width: 1px;
+  border-color: grey;
+  border-style: dashed;
+  background-image: url('../../img/floor.png');
+  display: inline-block;
+}
+
+span.num {
+  color: white;
+  text-size: 200%;
+}
+
+div {
+  margin: -2px;
+  vertical-align: top;
+}
+
+/* blink effect*/
+.blink_me {
+  animation: blinker 0.5s linear infinite;
+}
+
+@keyframes blinker {
+  50% { opacity: 0; }
+}
+
+/* jsPsych progress bar */
+#myProgress {
+  text-align: right;
+  width: 200px;
+  background-color: grey;
+}
+
+#myBar {
+  text-align: center;
+  width: 1%;
+  height: 30px;
+  background-color: green;
+}
+
+
+#jspsych-progressbar-container {
+  color: #555;
+  border-bottom: 1px solid #dedede;
+  background-color: #f9f9f9;
+  margin-bottom: 1em;
+  text-align: center;
+  padding: 8px 0px;
+  width: 100%;
+  line-height: 1em;
+}
+#jspsych-progressbar-container span {
+  font-size: 14px;
+  padding-right: 14px;
+}
+#jspsych-progressbar-outer {
+  background-color: #eee;
+  width: 50%;
+  margin: auto;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+#jspsych-progressbar-inner {
+  background-color: #aaa;
+  width: 0%;
+  height: 100%;
+}
+
+/* Control appearance of jsPsych.data.displayData() */
+#jspsych-data-display {
+  text-align: left;
+}
+
+#world1, #world2 {
+  display: inline-block;
+  margin: 20px;
+}
+/* #board {
+  display: table;
+}
+#tableRow {
+  display: table-row;
+}
+
+#world1, #world2 {
+  display: table-cell;
+} */

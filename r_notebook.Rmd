@@ -1,0 +1,91 @@
+---
+title: "R Notebook for solvability"
+output: html_notebook
+---
+
+# Prior instances
+
+The hypothesis is that humans will prefer solvable goals in these cases. To investigate the influence of solvability on human responses, specifically measured by confidence level, we will conduct a log-likelihood ratio test using the following regression models:
+
+M0: CL \~ (1\|participant) + (1\|map)
+
+M1: CL \~ (1\|participant) + (1\|map) + soA + soB + soA \* soB
+
+In these models, CL represents the confidence level, which ranges from -2.5 to 2.5. The variables soA and soB indicate the solvability of goal A and goal B, respectively (1 denotes solvable, -1 denotes unsolvable).
+
+```{r}
+library(readr)
+prior_info <- read_csv("download/unsol_prior_cl.csv")
+library(lme4)
+m0 <- lmer (formula = cl ~ (1|pid) + (1|map), data = prior_info)
+m1 <- lmer (formula = cl ~ soA + soB + soA * soB + (1|pid) + (1|map), data = prior_info)
+summary(m0)
+summary(m1)
+anova(m0,m1)
+```
+
+It turns out that solvability has the positive effect on participants prior. To be specific, if one target is solvable, then participants are more likely to infer that target is the real target. Though the prior is not very strong, means solvability is not the only evidence participant used without observation.
+
+Report the log likelihood test result and coefficient of A (-0.16) and B (0.18). What else could we report for prior instances?
+
+# Observation instances
+
+## Action instances
+
+There are three specific subtypes under the observation instances. The first subtype is called "action" pairs, where the action for the key step varies. We hypothesize that changes in the action taken at this stage will impact human inferences and confidence levels in all cases, regardless of the solvability of potential goals.
+
+```{r}
+library(readr)
+obs_info <- read_csv("download/unsol_time_cl.csv")
+action_info <- obs_info[obs_info$map == 1 | obs_info$map == 2, ]
+library(lme4)
+m0 <- lmer (formula = cl ~ (1|pid) + (1|map), data = action_info)
+m1 <- lmer (formula = cl ~ soA + soB + soA * soB + (1|pid) + (1|map), data = action_info)
+m2 <- lmer (formula = cl ~ (1|pid) + (1|map) + obs, data = action_info)
+m3 <- lmer (formula = cl ~ (1|pid) + (1|map) + soA + soB + soA * soB + obs , data = action_info)
+summary(m1)
+summary(m2)
+summary(m3)
+anova(m0,m1,m2,m3)
+```
+
+This result confirm our impression: solvability rarely contribute to the final decision in action choice. Considering the result in prior instances, the best account might be the participant does not consider the solvability when make the inference in these cases (i.e. evidence collection model).
+
+## Obvious instances
+
+The second subtype is referred to as "obvious" pairs, where one goal is easy to solve and the other goal is either solvable or unsolvable. In this subtype, the thinking time of the key step varies. Our hypothesis suggests that prolonged thinking time will decrease human preference for the easy goal.
+
+```{r}
+obv_info <- obs_info[obs_info$map == 3 | obs_info$map == 4, ]
+library(lme4)
+m0 <- lmer (formula = cl ~ (1|pid) + (1|map), data = obv_info)
+m1 <- lmer (formula = cl ~ soA + soB + soA * soB + (1|pid) + (1|map), data = obv_info)
+m2 <- lmer (formula = cl ~ (1|pid) + (1|map) + obs, data = obv_info)
+m3 <- lmer (formula = cl ~ (1|pid) + (1|map) + soA + soB + soA * soB + obs , data = obv_info)
+summary(m1)
+summary(m2)
+summary(m3)
+anova(m0,m1,m2,m3)
+```
+
+As we expected, solvability again does not affect goal inference, while the easy goal is always the first choice but the preference shift to the difficult one if long thinking time is observed. The intercept is -1.5 which means on average participant will choose mid-level confidence of A.
+
+## Competing instances
+
+The last subtype is known as "competing" pairs, in which one goal has an obvious option in the key step, while the other goal presents two competing options. Similar to the previous subtype, the thinking time of the key step varies. We propose that prolonged thinking time will decrease human preference for the goal with a single option.
+
+```{r}
+cmp_info <- obs_info[obs_info$map == 5 | obs_info$map == 6, ]
+library(lme4)
+m0 <- lmer (formula = cl ~ (1|pid) + (1|map), data = cmp_info)
+m1 <- lmer (formula = cl ~ soA + soB + soA * soB + (1|pid) + (1|map), data = cmp_info)
+m2 <- lmer (formula = cl ~ (1|pid) + (1|map) + obs, data = cmp_info)
+m3 <- lmer (formula = cl ~ (1|pid) + (1|map) + soA + soB + soA * soB + obs , data = cmp_info)
+summary(m1)
+summary(m2)
+summary(m3)
+anova(m0,m1,m2,m3)
+confint(m3, level=0.95)
+```
+
+The regression analysis in the Python notebook provides support for our assumption: solvability has a positive effect. Specifically, the solvability of the upper area significantly contributes to human inference.
